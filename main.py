@@ -31,6 +31,12 @@ def start():
     track = tracking()
     track.detect()
 
+@app.get("/get_body")
+def get_body():
+    track = tracking()
+    res = track.get_body()
+    return {res}
+
 if __name__ == "__main__":
     uvicorn.run(
         app,

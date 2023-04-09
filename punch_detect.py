@@ -12,7 +12,7 @@ class punch_detect:
             if r > 0.8 and len(self.X)==5:
                 #print(self.X)
                 self.X.clear()
-                return True
+                return True,math.ceil(r/0.8)
         return False, math.ceil(r/0.8)
         
 

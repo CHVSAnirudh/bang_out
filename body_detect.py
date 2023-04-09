@@ -2,7 +2,9 @@ import cv2
 import mediapipe as mp
 import numpy as np
 from punch_detect import punch_detect
+import requests
 
+URL = "http://127.0.0.1:5000/get_body"
 class tracking():
   mp_drawing = mp.solutions.drawing_utils
   mp_drawing_styles = mp.solutions.drawing_styles
@@ -31,7 +33,9 @@ class tracking():
         if results is not None:
           punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
           if punch:
-            c1,c2 = self.get_body()
+            response = requests.get(URL)
+            res = response.json()
+            c1,c2 = res[0][0],res[0][1]
             self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
           punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
           if punch:
@@ -78,6 +82,7 @@ class tracking():
     if x <c1[0]+0.1 and x>c2[0] - 0.1 and y>c1[1]-0.1 and y<c2[1]+0.1:
       self.score += 5
       print(self.score)
+
 
 if __name__ == "__main__":
   track = tracking()
