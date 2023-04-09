@@ -3,7 +3,8 @@ import mediapipe as mp
 import numpy as np
 from punch_detect import punch_detect
 import requests
-
+import threading
+from playsound import playsound
 URL = "http://127.0.0.1:5000/get_body"
 class tracking():
   mp_drawing = mp.solutions.drawing_utils
@@ -12,6 +13,10 @@ class tracking():
   cap = cv2.VideoCapture(0)
   score = 0
 # For webcam input:
+  def play_punch_sound(self):
+    playsound("p1.mp3")
+
+
   def detect(self):
     right_punch = punch_detect()
     left_punch = punch_detect()
@@ -35,13 +40,19 @@ class tracking():
           if punch:
             response = requests.get(URL)
             res = response.json()
-            c1,c2 = res[0][0],res[0][1]
+            try:
+              c1,c2 = res[0][0],res[0][1]
+            except:
+              c1,c2 = (0,0),(0,0)
             self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
           punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
           if punch:
-            c1,c2 = self.get_body()
+            try:
+              c1,c2 = self.get_body()
+            except:
+              c1,c2 = (0,0),(0,0)
             self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-
+          
           image.flags.writeable = True
           image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
           self.mp_drawing.draw_landmarks(
@@ -81,6 +92,8 @@ class tracking():
   def is_punch(self,x,y,c1,c2):
     if x <c1[0]+0.1 and x>c2[0] - 0.1 and y>c1[1]-0.1 and y<c2[1]+0.1:
       self.score += 5
+      my_thread = threading.Thread(target=self.play_punch_sound)
+      my_thread.start()
       print(self.score)
 
 

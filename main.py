@@ -10,20 +10,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 logging.getLogger("pipeline").setLevel("INFO")
 
-app = FastAPI(title="FaceSig Recon", version="1.0")
-
-
-@app.get("/punch")
-def play_punch_sound(sevearity: str = Query(..., max_length=50, min_length=3)):
-    try:
-        logging.info("recieved a task for converting recon result to excel")
-        
-        logging.info("recon to excel successfully completed")
-        return JSONResponse(status_code=200)
-    except Exception as e:
-        logging.error("error occured in converting result to excel.",exc_info=True)
-        return JSONResponse(status_code=500, content={"content":{"result":"failed to convert result to excel."}})
-    
+app = FastAPI(title="FaceSig Recon", version="1.0")    
 
 @app.get("/start")
 def start():
