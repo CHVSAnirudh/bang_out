@@ -29,14 +29,15 @@ class tracking():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         if results is not None:
-          if right_punch.punch_detect(results.pose_landmarks.landmark[20]):
-            #print(f"right punch detected at {results.pose_landmarks.landmark[20].x}, {results.pose_landmarks.landmark[20].y}")
+          punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
+          if punch:
             c1,c2 = self.get_body()
             self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-          if left_punch.punch_detect(results.pose_landmarks.landmark[19]):
-            pass
-            #print(f"left punch detected at {results.pose_landmarks.landmark[19].x}, {results.pose_landmarks.landmark[19].y}")
-          # Draw the pose annotation on the image.
+          punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
+          if punch:
+            c1,c2 = self.get_body()
+            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+
           image.flags.writeable = True
           image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
           self.mp_drawing.draw_landmarks(

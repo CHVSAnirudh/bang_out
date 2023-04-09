@@ -1,9 +1,11 @@
 from collections import deque
 import time
+import math
 class punch_detect:
     X = deque(maxlen = 5)
     
     def punch_detect(self,mobj):
+        r = 0
         if mobj.visibility > 0.5:
             self.X.append(mobj.z)
             r = abs(max(self.X) - min(self.X))
@@ -11,6 +13,6 @@ class punch_detect:
                 #print(self.X)
                 self.X.clear()
                 return True
-        return False
+        return False, math.ceil(r/0.8)
         
 
