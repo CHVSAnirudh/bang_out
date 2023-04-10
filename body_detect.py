@@ -7,7 +7,7 @@ from punch_detect import punch_detect
 import requests
 import threading
 from playsound import playsound
-URL = "http://192.168.137.1:5000/get_body"
+URL = "http://192.168.39.212:5000/get_body"
 import time
 
 
@@ -57,33 +57,31 @@ class tracking():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         if results is not None:
-          try:
-            punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
-            if punch:
-              response = requests.get(URL)
-              res = response.json()
-              try:
-                c1,c2 = res[0][0],res[0][1]
-              except:
-                c1,c2 = (0,0),(0,0)
-              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-            punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
-            if punch:
-              try:
-                c1,c2 = self.get_body()
-              except:
-                c1,c2 = (0,0),(0,0)
-              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+          punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
+          if punch:
+            response = requests.get(URL)
+            res = response.json()
+            try:
+              c1,c2 = res[0][0],res[0][1]
+            except:
+              c1,c2 = (0,0),(0,0)
+            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+          punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
+          if punch:
+            try:
+              c1,c2 = self.get_body()
+            except:
+              c1,c2 = (0,0),(0,0)
+            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
 
-            image.flags.writeable = True
-            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-            self.mp_drawing.draw_landmarks(
-                image,
-                results.pose_landmarks,
-                self.mp_pose.POSE_CONNECTIONS,
-                landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style())
-          except:
-            continue
+          image.flags.writeable = True
+          image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+          self.mp_drawing.draw_landmarks(
+              image,
+              results.pose_landmarks,
+              self.mp_pose.POSE_CONNECTIONS,
+              landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style())
+
 
           # Flip the image horizontally for a selfie-view display.
           cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))

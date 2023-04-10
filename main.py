@@ -21,7 +21,6 @@ def start():
     logging.info("game done")
     return score
 
-@app.get("/sound")
 def sound():
     while True:
         playsound()
