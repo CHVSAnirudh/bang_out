@@ -92,7 +92,8 @@ class tracking():
             break
         t2 = time.time()
         duration = t2-t1
-        if duration > 30000:
+        if duration > 30:
+          self.cap.release()
           return {self.score}
           self.release_score()
     self.cap.release()
