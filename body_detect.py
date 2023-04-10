@@ -60,22 +60,25 @@ class tracking():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         if results is not None:
-          punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
-          if punch:
-            response = requests.get(URL)
-            res = response.json()
-            try:
-              c1,c2 = res[0][0],res[0][1]
-            except:
-              c1,c2 = (0,0),(0,0)
-            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-          punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
-          if punch:
-            try:
-              c1,c2 = self.get_body()
-            except:
-              c1,c2 = (0,0),(0,0)
-            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+          try:
+            punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
+            if punch:
+              response = requests.get(URL)
+              res = response.json()
+              try:
+                c1,c2 = res[0][0],res[0][1]
+              except:
+                c1,c2 = (0,0),(0,0)
+              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+            punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
+            if punch:
+              try:
+                c1,c2 = self.get_body()
+              except:
+                c1,c2 = (0,0),(0,0)
+              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+          except:
+            pass
 
           image.flags.writeable = True
           image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
