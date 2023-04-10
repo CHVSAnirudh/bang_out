@@ -7,7 +7,7 @@ from punch_detect import punch_detect
 import requests
 import threading
 from playsound import playsound
-URL = "http://192.168.39.212:5000/get_body"
+URL = "http://192.168.39.34:5000/get_body"
 import time
 
 
@@ -35,6 +35,9 @@ class tracking():
 # For webcam input:
   def play_punch_sound(self):
     playsound("p2.mp3")
+
+  def play_miss_sound(self):
+    playsound("fist-punch-or-kick-7171.mp3")
 
 
   def detect(self):
@@ -118,7 +121,7 @@ class tracking():
             x4,y4 = results.pose_landmarks.landmark[12].x,1.0
           return (x1,y1),(x4,y4)
     except:
-      self.get_body()
+      return (0,0),(0,0)
 
   def is_punch(self,x,y,c1,c2):
     if x <c1[0]+0.1 and x>c2[0] - 0.1 and y>c1[1]-0.1 and y<c2[1]+0.1:
@@ -126,6 +129,9 @@ class tracking():
       my_thread = threading.Thread(target=self.play_punch_sound)
       my_thread.start()
       print(self.score)
+    else:
+      my_thread = threading.Thread(target=self.play_miss_sound)
+      my_thread.start()
 
 
 if __name__ == "__main__":
