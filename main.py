@@ -2,6 +2,7 @@ import uvicorn
 from fastapi import FastAPI, File, UploadFile, Form
 from fastapi.responses import JSONResponse
 from fastapi import Query,Body
+from playsound import playsound
 import logging
 from body_detect import tracking
 logging.basicConfig(
@@ -16,7 +17,14 @@ app = FastAPI(title="FaceSig Recon", version="1.0")
 def start():
     logging.info("starting the game")
     track = tracking()
-    track.detect()
+    score = track.detect()
+    logging.info("game done")
+    return score
+
+@app.get("/sound")
+def sound():
+    while True:
+        playsound()
 
 @app.get("/get_body")
 def get_body():
@@ -27,5 +35,6 @@ def get_body():
 if __name__ == "__main__":
     uvicorn.run(
         app,
+        host = "192.168.39.212",
         port=5000,
     )

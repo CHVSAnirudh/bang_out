@@ -1,11 +1,31 @@
 import cv2
 import mediapipe as mp
 import numpy as np
+import sys
+import tkinter as tk
 from punch_detect import punch_detect
 import requests
 import threading
 from playsound import playsound
-URL = "http://127.0.0.1:5000/get_body"
+URL = "http://192.168.137.1:5000/get_body"
+import time
+
+
+class Example:
+    
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.geometry('250x150')
+        self.root.title('Score Display')
+        
+        self.score_label = tk.Label(self.root, text='Score: 0')
+        self.score_label.pack(side=tk.TOP, padx=10, pady=10)
+        
+        self.root.mainloop()
+        
+    def set_score(self, score):
+        self.score_label.configure(text='Score: {}'.format(score))
+
 class tracking():
   mp_drawing = mp.solutions.drawing_utils
   mp_drawing_styles = mp.solutions.drawing_styles
@@ -14,10 +34,11 @@ class tracking():
   score = 0
 # For webcam input:
   def play_punch_sound(self):
-    playsound("p1.mp3")
+    playsound("p2.mp3")
 
 
   def detect(self):
+    t1 = time.time()
     right_punch = punch_detect()
     left_punch = punch_detect()
     with self.mp_pose.Pose(
@@ -36,38 +57,50 @@ class tracking():
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         results = pose.process(image)
         if results is not None:
-          punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
-          if punch:
-            response = requests.get(URL)
-            res = response.json()
-            try:
-              c1,c2 = res[0][0],res[0][1]
-            except:
-              c1,c2 = (0,0),(0,0)
-            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-          punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
-          if punch:
-            try:
-              c1,c2 = self.get_body()
-            except:
-              c1,c2 = (0,0),(0,0)
-            self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
-          
-          image.flags.writeable = True
-          image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-          self.mp_drawing.draw_landmarks(
-              image,
-              results.pose_landmarks,
-              self.mp_pose.POSE_CONNECTIONS,
-              landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style())
-          
+          try:
+            punch, sevearity = right_punch.punch_detect(results.pose_landmarks.landmark[20])
+            if punch:
+              response = requests.get(URL)
+              res = response.json()
+              try:
+                c1,c2 = res[0][0],res[0][1]
+              except:
+                c1,c2 = (0,0),(0,0)
+              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+            punch, sevearity = left_punch.punch_detect(results.pose_landmarks.landmark[19])
+            if punch:
+              try:
+                c1,c2 = self.get_body()
+              except:
+                c1,c2 = (0,0),(0,0)
+              self.is_punch(results.pose_landmarks.landmark[20].x, results.pose_landmarks.landmark[20].y,c1,c2)
+
+            image.flags.writeable = True
+            image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+            self.mp_drawing.draw_landmarks(
+                image,
+                results.pose_landmarks,
+                self.mp_pose.POSE_CONNECTIONS,
+                landmark_drawing_spec=self.mp_drawing_styles.get_default_pose_landmarks_style())
+          except:
+            continue
 
           # Flip the image horizontally for a selfie-view display.
           cv2.imshow('MediaPipe Pose', cv2.flip(image, 1))
           if cv2.waitKey(5) & 0xFF == 27:
             break
+        t2 = time.time()
+        duration = t2-t1
+        if duration > 30000:
+          return {self.score}
+          self.release_score()
     self.cap.release()
   
+  def release_score(self):
+    pass
+    # ex = Example()
+    # ex.set_score(self.score)
+
   def get_body(self):
     try:
       if self.cap.isOpened():
